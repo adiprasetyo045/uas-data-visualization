@@ -1,6 +1,6 @@
 ---
 title: "UAS Data Visualization"
-author: Adi Prasetyo - institut Teknologi Statistika dan Bisnis Muhammadiyah Semarang
+author: Adi Prasetyo - Institut Teknologi Statistika dan Bisnis Muhammadiyah Semarang
 date: "2025-01-30"
 output:
   html_document: 
@@ -11,13 +11,16 @@ output:
 ---
 
 ```{r setup, include=FALSE}
+# Mengatur opsi knitr untuk menampilkan kode
 knitr::opts_chunk$set(echo = TRUE)
-library(ggplot2)
-library(plotly)
-library(dplyr)
-library(tidyr)
-library(RColorBrewer)
-library(readxl)
+
+# Memuat pustaka yang diperlukan
+library(ggplot2)    # Untuk membuat visualisasi statis
+library(plotly)     # Untuk membuat visualisasi interaktif
+library(dplyr)      # Untuk manipulasi data
+library(tidyr)      # Untuk transformasi data
+library(RColorBrewer) # Untuk palet warna
+library(readxl)     # Untuk membaca file Excel
 ```
 
 ## Deskripsi
@@ -29,22 +32,22 @@ Analisis ini bertujuan untuk membuat visualisasi data berdasarkan dataset UAS ya
 ### 1. Mengimpor Dataset
 
 ```{r load-data}
-# Memuat dataset
-library(readxl)
+# Membaca dataset dari file Excel
 file_path <- "Data UAS.xlsx"
 df <- read_excel(file_path, sheet = "Data") %>%
   mutate(
-    Benua = factor(Benua),
-    Tahun = as.integer(Tahun)
+    Benua = factor(Benua),  # Mengubah Benua menjadi faktor
+    Tahun = as.integer(Tahun) # Memastikan Tahun dalam format integer
   )
 
-# Menampilkan beberapa baris pertama
+# Menampilkan beberapa baris pertama untuk pengecekan struktur data
 head(df)
 ```
 
 ### 2. Statistik Deskriptif
 
 ```{r descriptive-statistics}
+# Menampilkan ringkasan statistik dari dataset
 summary(df)
 ```
 
@@ -70,8 +73,10 @@ ggplot(df, aes(x = Angka_Harapan_Hidup)) +
     plot.title = element_text(hjust = 0.5, face = "bold", size = 14),
     axis.text = element_text(size = 10)
   )
-
 ```
+
+**Interpretasi:**
+Histogram ini menunjukkan bahwa angka harapan hidup memiliki distribusi yang bervariasi. Puncak histogram menunjukkan kelompok negara yang memiliki harapan hidup dominan dalam dataset.
 
 ## 2. Grafik Bivariat
 
@@ -105,20 +110,20 @@ p_scatter <- ggplot(df, aes(
     legend.position = "bottom"
   )
 
-# Menggunakan plotly untuk interaktivitas
 plotly::ggplotly(p_scatter, tooltip = "text")
-
 ```
+
+**Interpretasi:**
+Scatter plot ini menunjukkan adanya hubungan positif antara pendapatan per kapita dan angka harapan hidup. Negara-negara dengan pendapatan per kapita tinggi umumnya memiliki angka harapan hidup yang lebih tinggi.
 
 ## 3. Grafik Multivariat
 
 ### Heatmap: Rata-rata Jumlah Anak Berdasarkan Benua dan Tahun
 
 ```{r multivariat-heatmap}
-library(reshape2)
 heatmap_data <- df %>%
   group_by(Benua, Tahun) %>%
-  summarize(Rata_Jumlah_Anak = mean(Jumlah_anak, na.rm = TRUE))
+  summarize(Rata_Jumlah_Anak = mean(Jumlah_anak, na.rm = TRUE), .groups = "drop")
 
 p_heatmap <- ggplot(heatmap_data, aes(x = Tahun, y = Benua, fill = Rata_Jumlah_Anak)) +
   geom_tile(color = "white") +
@@ -135,10 +140,11 @@ p_heatmap <- ggplot(heatmap_data, aes(x = Tahun, y = Benua, fill = Rata_Jumlah_A
     axis.text.x = element_text(angle = 45, hjust = 1)
   )
 
-# Interaktif
 plotly::ggplotly(p_heatmap)
-
 ```
+
+**Interpretasi:**
+Heatmap ini menggambarkan tren jumlah rata-rata anak berdasarkan benua dan tahun. Warna yang lebih gelap mengindikasikan rata-rata jumlah anak yang lebih tinggi.
 
 ## 4. Grafik Interaktif
 
@@ -169,12 +175,14 @@ p_bubble <- plot_ly(
   )
 
 p_bubble
-
 ```
+
+**Interpretasi:**
+Bubble plot ini memberikan eksplorasi lebih lanjut dengan ukuran titik yang merepresentasikan populasi negara. Negara dengan populasi besar tampak lebih dominan dalam grafik.
 
 ## Kesimpulan
 
 1. **Histogram** menunjukkan distribusi angka harapan hidup yang beragam, dengan puncak di kisaran tertentu.
-2. **Scatter plot** mengindikasikan hubungan positif antara pendapatan per kapita dan angka harapan hidup, terutama di negara-negara maju.
+2. **Scatter plot** mengindikasikan hubungan positif antara pendapatan per kapita dan angka harapan hidup.
 3. **Heatmap** mengungkapkan pola rata-rata jumlah anak per benua dari tahun ke tahun.
-4. **Bubble plot interaktif** memberikan fleksibilitas eksplorasi data dengan menampilkan informasi tambahan saat kursor diarahkan ke titik tertentu.
+4. **Bubble plot interaktif** memungkinkan eksplorasi lebih dalam terhadap hubungan antar variabel.
